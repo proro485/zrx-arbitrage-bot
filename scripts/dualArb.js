@@ -3,7 +3,7 @@ const chalk = require('chalk');
 const { BigNumber } = require('ethers');
 const { KNOWN_TOKENS } = require('../constants/polygon/addresses');
 const { dualTokensList } = require('../constants/polygon/tokens');
-const { fetchQuote, fetchQuoteMax, flashPool, toBorrow, Swap, getUniV3Fees, getBPS, getRouter, getState, setState } = require('../utils/utilities');
+const { fetchQuote, flashPool, toBorrow, Swap, getUniV3Fees, getBPS, getRouter, getState, setState } = require('../utils/utilities');
 
 const dualArb = async () => {
     const [owner] = await ethers.getSigners();
@@ -28,33 +28,15 @@ const dualArb = async () => {
             sellAmount: borrowAmountStr
         });
 
-        const swap1Max = await fetchQuoteMax({
-            sellToken: token1Add,
-            buyToken: token2Add,
-            sellAmount: borrowAmountStr
-        });
-
-        const sellAmountSwap2 = BigNumber.from(swap1Max.buyAmount)
-            .mul(BigNumber.from(9995))
-            .div(BigNumber.from(10000))
-            .toString();
-
         const swap2 = await fetchQuote({
             sellToken: token2Add,
             buyToken: token1Add,
-            sellAmount: sellAmountSwap2,
-        });
-
-        const swap2Max = await fetchQuoteMax({
-            sellToken: token2Add,
-            buyToken: token1Add,
-            sellAmount: sellAmountSwap2,
+            sellAmount: swap1.buyAmount.toString(),
         });
 
         const amtBack = BigNumber.from(swap2.buyAmount);
-        const amtBackMax = BigNumber.from(swap2Max.buyAmount);
 
-        if (!amtBackMax.gte(borrowAmount.mul(BigNumber.from(10000 + getBPS())).div(BigNumber.from(10000))) || getState()) {
+        if (!amtBack.gte(borrowAmount.mul(BigNumber.from(10000 + getBPS())).div(BigNumber.from(10000))) || getState()) {
 
             console.log(
                 chalk.yellowBright(`x-------------------------------`),
@@ -66,10 +48,8 @@ const dualArb = async () => {
 
             console.log(`Initial : ${borrowAmountStr} ${token1}`);
             console.log(`Final : ${amtBack} ${token1}`);
-            console.log(`Final Max : ${amtBackMax} ${token1}`);
             console.log(chalk.red("Loss :", amtBack.sub(borrowAmount)));
             console.log(chalk.redBright("Loss %age :", (Math.abs(amtBack - borrowAmount) / borrowAmount) * 100));
-            console.log(chalk.redBright("Loss Max %age :", (Math.abs(amtBackMax - borrowAmount) / borrowAmount) * 100));
             console.log();
             continue;
 
@@ -102,11 +82,10 @@ const dualArb = async () => {
                 fees1,
                 routers1,
                 splitPercentage1,
-                swap1Max.allowanceTarget,
-                swap1Max.to,
-                swap1Max.data
+                swap1.allowanceTarget,
+                swap1.to,
+                swap1.data
             ));
-
 
             swap2.sources.sort((a, b) => a.proportion - b.proportion);
 
@@ -134,9 +113,9 @@ const dualArb = async () => {
                 fees2,
                 routers2,
                 splitPercentage2,
-                swap2Max.allowanceTarget,
-                swap2Max.to,
-                swap2Max.data
+                swap2.allowanceTarget,
+                swap2.to,
+                swap2.data
             ));
 
             await contract.dodoFlashLoan(
@@ -161,12 +140,10 @@ const dualArb = async () => {
 
             console.log(`Initial : ${borrowAmountStr} ${token1}`);
             console.log(`Final : ${amtBack} ${token1}`);
-            console.log(`Final Max : ${amtBackMax} ${token1}`);
             console.log(chalk.green("Profit :", amtBack.sub(borrowAmount)));
             console.log(chalk.greenBright("Profit %age :", (Math.abs(amtBack - borrowAmount) / borrowAmount) * 100));
-            console.log(chalk.greenBright("Profit Max %age :", (Math.abs(amtBackMax - borrowAmount) / borrowAmount) * 100));
             console.log();
-            return true;
+            // return true;
         }
 
     }

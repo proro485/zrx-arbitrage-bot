@@ -3,7 +3,7 @@ const chalk = require('chalk');
 const { BigNumber } = require('ethers');
 const { KNOWN_TOKENS } = require('../constants/polygon/addresses');
 const { triTokensList } = require('../constants/polygon/tokens');
-const { fetchQuote, fetchQuoteMax, flashPool, toBorrow, Swap, getUniV3Fees, getBPS, getRouter, getState, setState } = require('../utils/utilities');
+const { fetchQuote, flashPool, toBorrow, Swap, getUniV3Fees, getBPS, getRouter, getState, setState } = require('../utils/utilities');
 
 const triArb = async (contract) => {
     for (let i = 0; i < triTokensList.length; i++) {
@@ -25,50 +25,21 @@ const triArb = async (contract) => {
             sellAmount: borrowAmountStr
         });
 
-        const swap1Max = await fetchQuoteMax({
-            sellToken: token1Add,
-            buyToken: token2Add,
-            sellAmount: borrowAmountStr
-        });
-
-        const sellAmountSwap2 = BigNumber.from(swap1Max.buyAmount)
-            .mul(BigNumber.from(9995))
-            .div(BigNumber.from(10000))
-            .toString();
-
         const swap2 = await fetchQuote({
             sellToken: token2Add,
             buyToken: token3Add,
-            sellAmount: sellAmountSwap2,
+            sellAmount: swap1.buyAmount.toString(),
         });
-
-        const swap2Max = await fetchQuoteMax({
-            sellToken: token2Add,
-            buyToken: token3Add,
-            sellAmount: sellAmountSwap2,
-        });
-
-        const sellAmountSwap3 = BigNumber.from(swap2Max.buyAmount)
-            .mul(BigNumber.from(9995))
-            .div(BigNumber.from(10000))
-            .toString();
 
         const swap3 = await fetchQuote({
             sellToken: token3Add,
             buyToken: token1Add,
-            sellAmount: sellAmountSwap3,
-        });
-
-        const swap3Max = await fetchQuoteMax({
-            sellToken: token3Add,
-            buyToken: token1Add,
-            sellAmount: sellAmountSwap3,
+            sellAmount: swap2.buyAmount.toString(),
         });
 
         const amtBack = BigNumber.from(swap3.buyAmount);
-        const amtBackMax = BigNumber.from(swap3Max.buyAmount);
 
-        if (!amtBackMax.gte(borrowAmount.mul(BigNumber.from(10000 + getBPS())).div(BigNumber.from(10000))) || getState()) {
+        if (!amtBack.gte(borrowAmount.mul(BigNumber.from(10000 + getBPS())).div(BigNumber.from(10000))) || getState()) {
 
             console.log(
                 chalk.yellowBright(`x-------------------------------`),
@@ -80,10 +51,8 @@ const triArb = async (contract) => {
 
             console.log(`Initial : ${borrowAmountStr} ${token1}`);
             console.log(`Final : ${amtBack} ${token1}`);
-            console.log(`Final Max : ${amtBackMax} ${token1}`);
             console.log(chalk.red("Loss :", amtBack.sub(borrowAmount)));
             console.log(chalk.redBright("Loss %age :", (Math.abs(amtBack - borrowAmount) / borrowAmount) * 100));
-            console.log(chalk.redBright("Loss Max %age :", (Math.abs(amtBackMax - borrowAmount) / borrowAmount) * 100));
             console.log();
             continue;
 
@@ -116,9 +85,9 @@ const triArb = async (contract) => {
                 fees1,
                 routers1,
                 splitPercentage1,
-                swap1Max.allowanceTarget,
-                swap1Max.to,
-                swap1Max.data
+                swap1.allowanceTarget,
+                swap1.to,
+                swap1.data
             ));
 
 
@@ -148,9 +117,9 @@ const triArb = async (contract) => {
                 fees2,
                 routers2,
                 splitPercentage2,
-                swap2Max.allowanceTarget,
-                swap2Max.to,
-                swap2Max.data
+                swap2.allowanceTarget,
+                swap2.to,
+                swap2.data
             ));
 
             swap2.sources.sort((a, b) => a.proportion - b.proportion);
@@ -179,9 +148,9 @@ const triArb = async (contract) => {
                 fees3,
                 routers3,
                 splitPercentage3,
-                swap3Max.allowanceTarget,
-                swap3Max.to,
-                swap3Max.data
+                swap3.allowanceTarget,
+                swap3.to,
+                swap3.data
             ));
 
             await contract.dodoFlashLoan(
@@ -206,12 +175,10 @@ const triArb = async (contract) => {
 
             console.log(`Initial : ${borrowAmountStr} ${token1}`);
             console.log(`Final : ${amtBack} ${token1}`);
-            console.log(`Final Max : ${amtBackMax} ${token1}`);
             console.log(chalk.green("Profit :", amtBack.sub(borrowAmount)));
             console.log(chalk.greenBright("Profit %age :", (Math.abs(amtBack - borrowAmount) / borrowAmount) * 100));
-            console.log(chalk.greenBright("Profit Max %age :", (Math.abs(amtBackMax - borrowAmount) / borrowAmount) * 100));
             console.log();
-            return true;
+            // return true;
         }
 
     }
