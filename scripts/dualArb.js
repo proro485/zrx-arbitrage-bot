@@ -35,7 +35,7 @@ const dualArb = async () => {
         });
 
         const sellAmountSwap2 = BigNumber.from(swap1Max.buyAmount)
-            .mul(BigNumber.from(9990))
+            .mul(BigNumber.from(9995))
             .div(BigNumber.from(10000))
             .toString();
 
@@ -54,7 +54,7 @@ const dualArb = async () => {
         const amtBack = BigNumber.from(swap2.buyAmount);
         const amtBackMax = BigNumber.from(swap2Max.buyAmount);
 
-        if (!amtBack.gte(borrowAmount.mul(BigNumber.from(10000 + getBPS())).div(BigNumber.from(10000))) && getState()) {
+        if (!amtBackMax.gte(borrowAmount.mul(BigNumber.from(10000 + getBPS())).div(BigNumber.from(10000))) || getState()) {
 
             console.log(
                 chalk.yellowBright(`x-------------------------------`),
@@ -82,14 +82,17 @@ const dualArb = async () => {
             const routers1 = [];
             const splitPercentage1 = [];
             for (let i = 0; i < swap1.sources.length; i++) {
-                if (swap1.sources[i].name !== 'Uniswap_V3') {
-                    fees1.push(0);
-                    routers1.push(getRouter(swap1.sources[i].name));
-                    splitPercentage1.push(swap1.sources[i].proportion * 100000000);
-                } else {
-                    fees1.push(getUniV3Fees(token1, token2));
-                    routers1.push(getRouter(swap1.sources[i].name));
-                    splitPercentage1.push(swap1.sources[i].proportion * 100000000);
+                if (swap1.sources[i].proportion !== '0') {
+                    if (swap1.sources[i].name !== 'Uniswap_V3') {
+                        fees1.push(0);
+                        routers1.push(getRouter(swap1.sources[i].name));
+                        splitPercentage1.push(swap1.sources[i].proportion * 100000000);
+                    }
+                    else {
+                        fees1.push(getUniV3Fees(token1, token2));
+                        routers1.push(getRouter(swap1.sources[i].name));
+                        splitPercentage1.push(swap1.sources[i].proportion * 100000000);
+                    }
                 }
             }
 
@@ -111,14 +114,17 @@ const dualArb = async () => {
             const routers2 = [];
             const splitPercentage2 = [];
             for (let i = 0; i < swap2.sources.length; i++) {
-                if (swap2.sources[i].name !== 'Uniswap_V3') {
-                    fees2.push(0);
-                    routers2.push(getRouter(swap2.sources[i].name));
-                    splitPercentage2.push(swap2.sources[i].proportion * 100000000);
-                } else {
-                    fees2.push(getUniV3Fees(token2, token1));
-                    routers2.push(getRouter(swap2.sources[i].name));
-                    splitPercentage2.push(swap2.sources[i].proportion * 100000000);
+                if (swap2.sources[i].proportion !== '0') {
+                    if (swap2.sources[i].name !== 'Uniswap_V3') {
+                        fees2.push(0);
+                        routers2.push(getRouter(swap2.sources[i].name));
+                        splitPercentage2.push(swap2.sources[i].proportion * 100000000);
+                    }
+                    else {
+                        fees2.push(getUniV3Fees(token2, token1));
+                        routers2.push(getRouter(swap2.sources[i].name));
+                        splitPercentage2.push(swap2.sources[i].proportion * 100000000);
+                    }
                 }
             }
 

@@ -32,7 +32,7 @@ const triArb = async (contract) => {
         });
 
         const sellAmountSwap2 = BigNumber.from(swap1Max.buyAmount)
-            .mul(BigNumber.from(9990))
+            .mul(BigNumber.from(9995))
             .div(BigNumber.from(10000))
             .toString();
 
@@ -49,7 +49,7 @@ const triArb = async (contract) => {
         });
 
         const sellAmountSwap3 = BigNumber.from(swap2Max.buyAmount)
-            .mul(BigNumber.from(9990))
+            .mul(BigNumber.from(9995))
             .div(BigNumber.from(10000))
             .toString();
 
@@ -68,13 +68,13 @@ const triArb = async (contract) => {
         const amtBack = BigNumber.from(swap3.buyAmount);
         const amtBackMax = BigNumber.from(swap3Max.buyAmount);
 
-        if (!amtBack.gte(borrowAmount.mul(BigNumber.from(10000 + getBPS())).div(BigNumber.from(10000))) && getState()) {
+        if (!amtBackMax.gte(borrowAmount.mul(BigNumber.from(10000 + getBPS())).div(BigNumber.from(10000))) || getState()) {
 
             console.log(
-                chalk.yellowBright(`-------------------------------`),
-                chalk.blueBright(`Route ${i + 1}`),
+                chalk.yellowBright(`x-------------------------------`),
+                chalk.blueBright(`${i + 1}`),
                 chalk.greenBright(`[${token1}, ${token2}, ${token3}]`),
-                chalk.yellowBright(`-------------------------------`)
+                chalk.yellowBright(`-------------------------------x`)
             );
             console.log();
 
@@ -96,14 +96,17 @@ const triArb = async (contract) => {
             const routers1 = [];
             const splitPercentage1 = [];
             for (let i = 0; i < swap1.sources.length; i++) {
-                if (swap1.sources[i].name !== 'Uniswap_V3') {
-                    fees1.push(0);
-                    routers1.push(getRouter(swap1.sources[i].name));
-                    splitPercentage1.push(swap1.sources[i].proportion * 100000000);
-                } else {
-                    fees1.push(getUniV3Fees(token1, token2));
-                    routers1.push(getRouter(swap1.sources[i].name));
-                    splitPercentage1.push(swap1.sources[i].proportion * 100000000);
+                if (swap1.sources[i].proportion !== '0') {
+                    if (swap1.sources[i].name !== 'Uniswap_V3') {
+                        fees1.push(0);
+                        routers1.push(getRouter(swap1.sources[i].name));
+                        splitPercentage1.push(swap1.sources[i].proportion * 100000000);
+                    }
+                    else {
+                        fees1.push(getUniV3Fees(token1, token2));
+                        routers1.push(getRouter(swap1.sources[i].name));
+                        splitPercentage1.push(swap1.sources[i].proportion * 100000000);
+                    }
                 }
             }
 
@@ -125,14 +128,17 @@ const triArb = async (contract) => {
             const routers2 = [];
             const splitPercentage2 = [];
             for (let i = 0; i < swap2.sources.length; i++) {
-                if (swap2.sources[i].name !== 'Uniswap_V3') {
-                    fees2.push(0);
-                    routers2.push(getRouter(swap2.sources[i].name));
-                    splitPercentage2.push(swap2.sources[i].proportion * 100000000);
-                } else {
-                    fees2.push(getUniV3Fees(token2, token3));
-                    routers2.push(getRouter(swap2.sources[i].name));
-                    splitPercentage2.push(swap2.sources[i].proportion * 100000000);
+                if (swap2.sources[i].proportion !== '0') {
+                    if (swap2.sources[i].name !== 'Uniswap_V3') {
+                        fees2.push(0);
+                        routers2.push(getRouter(swap2.sources[i].name));
+                        splitPercentage2.push(swap2.sources[i].proportion * 100000000);
+                    }
+                    else {
+                        fees2.push(getUniV3Fees(token2, token3));
+                        routers2.push(getRouter(swap2.sources[i].name));
+                        splitPercentage2.push(swap2.sources[i].proportion * 100000000);
+                    }
                 }
             }
 
@@ -153,14 +159,17 @@ const triArb = async (contract) => {
             const routers3 = [];
             const splitPercentage3 = [];
             for (let i = 0; i < swap3.sources.length; i++) {
-                if (swap3.sources[i].name !== 'Uniswap_V3') {
-                    fees3.push(0);
-                    routers3.push(getRouter(swap3.sources[i].name));
-                    splitPercentage3.push(swap3.sources[i].proportion * 100000000);
-                } else {
-                    fees3.push(getUniV3Fees(token3, token1));
-                    routers3.push(getRouter(swap3.sources[i].name));
-                    splitPercentage3.push(swap3.sources[i].proportion * 100000000);
+                if (swap3.sources[i].proportion !== '0') {
+                    if (swap3.sources[i].name !== 'Uniswap_V3') {
+                        fees3.push(0);
+                        routers3.push(getRouter(swap3.sources[i].name));
+                        splitPercentage3.push(swap3.sources[i].proportion * 100000000);
+                    }
+                    else {
+                        fees3.push(getUniV3Fees(token3, token1));
+                        routers3.push(getRouter(swap3.sources[i].name));
+                        splitPercentage3.push(swap3.sources[i].proportion * 100000000);
+                    }
                 }
             }
 
@@ -188,10 +197,10 @@ const triArb = async (contract) => {
             setState();
 
             console.log(
-                chalk.yellowBright(`-------------------------------`),
-                chalk.blueBright(`Route ${i + 1}`),
+                chalk.yellowBright(`x-------------------------------`),
+                chalk.blueBright(`${i + 1}`),
                 chalk.greenBright(`[${token1}, ${token2}, ${token3}]`),
-                chalk.yellowBright(`-------------------------------`)
+                chalk.yellowBright(`-------------------------------x`)
             );
             console.log();
 

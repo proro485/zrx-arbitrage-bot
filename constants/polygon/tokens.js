@@ -26,8 +26,7 @@ const tokens = {
     "0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6": {
         symbol: "WBTC",
         name: "Wrapped BTC",
-        decimals: 8,
-        address: "0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6",
+        decimals: 8, address: "0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6",
     },
     "0x53e0bca35ec356bd5dddfebbd1fc0fd03fabad39": {
         symbol: "LINK",
