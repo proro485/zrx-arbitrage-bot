@@ -14,7 +14,7 @@
 4. Create a .env file and add these variables ```POLYGON_RPC_URL = <your_rpc_url>``` , ```PRIVATE_KEY = <your_private_key>```.
 <strong>Note : If you don't have an RPC url then create one using this referal link of <a href='https://alchemy.com/?r=bf58f2d861a182cd'>Alchemy</a>. Also don't forget to add "0x" infront of your private key.</strong> 
 7. Now you can open a terminal in this directory and run this command to deploy: 
-```npx hardhat run scripts/deploy.js --network polygon``` (You will get the contract address on the console, you can check the transaction here <a href='polygonscan.com'>PolygonScan</a>
+```npx hardhat run scripts/deploy.js --network polygon``` (You will get the contract address on the console, you can check the transaction here <a href='https://polygonscan.com'>PolygonScan</a>
 
 ## Steps to Run the bot
 1. ```hh run scripts/dualArb.js --network polygon``` (this script looks for arbitrage with only two assets for eg. X -> Y -> X)
