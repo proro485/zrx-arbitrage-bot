@@ -17,8 +17,8 @@
 ```npx hardhat run scripts/deploy.js --network polygon``` (You will get the contract address on the console, you can check the transaction here <a href='https://polygonscan.com'>PolygonScan</a>
 
 ## Steps to Run the bot
-1. ```hh run scripts/dualArb.js --network polygon``` (this script looks for arbitrage with only two assets for eg. X -> Y -> X)
-2. ```hh run scripts/triArb.js --network polygon``` (this script looks for triangular arbitrage for eg. X -> Y -> Z -> X)
+1. ```npx hardhat run scripts/dualArb.js --network polygon``` (this script looks for arbitrage with only two assets for eg. X -> Y -> X)
+2. ```npx hardhat run scripts/triArb.js --network polygon``` (this script looks for triangular arbitrage for eg. X -> Y -> Z -> X)
 
 ## Customizing the settings
 1. To change the pairs of tokens to find arbitrage in, you can go to the ```constants/polygon/tokens.js``` there you would find an array of name ```dualTokensList``` and ```triTokensList``` you can uncomment the pair of tokens you would like to get searched for arbitrage. 
